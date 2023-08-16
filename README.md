@@ -7,6 +7,7 @@ This project involves building a data pipeline and machine learning model to cat
 
 ### Organization:
 
+```
 - app
 | - template
 | |- master.html  # main page of web app
@@ -24,7 +25,7 @@ This project involves building a data pipeline and machine learning model to cat
 |- classifier.pkl  # saved model 
 
 - README.md
-
+```
 
 ### Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
