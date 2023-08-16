@@ -1,9 +1,6 @@
-
-
-
 import sys
 
-# import libraries
+# Import libraries
 import pandas as pd
 from sqlalchemy import create_engine
 import re
@@ -25,73 +22,101 @@ warnings.filterwarnings("ignore")
 import nltk
 nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger'])
 
-
 def load_data(database_filepath):
-    engine = create_engine('sqlite:///'+database_filepath)
-    df = pd.read_sql_table(database_filepath, engine)
+    """
+    Load data from a SQLite database.
+
+    Args:
+        database_filepath (str): Path to the SQLite database file.
+
+    Returns:
+        tuple: A tuple containing features, labels, and category names.
+    """
+    engine = create_engine('sqlite:///' + database_filepath)
+    df = pd.read_sql_table('DisasterResponse', engine)
     
     X = df['message']
-    y = df.iloc[:,4:]
+    y = df.iloc[:, 4:]
     category_names = y.columns
     
     return X, y, category_names
 
+def tokenize(text, url_place_holder_string="urlplaceholder"):
+    """
+    Tokenize and lemmatize text data.
 
-def tokenize(text,url_place_holder_string="urlplaceholder"):
+    Args:
+        text (str): Input text to be tokenized.
+        url_place_holder_string (str): String to replace URLs with.
 
-    # Replace all urls with a urlplaceholder string
+    Returns:
+        list: List of cleaned and lemmatized tokens.
+    """
+    # Replace all URLs with a URL placeholder string
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-    
-    # Extract all the urls from the provided text 
     detected_urls = re.findall(url_regex, text)
-    
-    # Replace url with a url placeholder string
     for detected_url in detected_urls:
         text = text.replace(detected_url, url_place_holder_string)
 
-    # Extract the word tokens from the provided text
+    # Extract word tokens from the provided text
     tokens = nltk.word_tokenize(text)
     
-    #Lemmanitizer to remove inflectional and derivationally related forms of a word
+    # Lemmatizer to remove inflectional and derivationally related forms of a word
     lemmatizer = nltk.WordNetLemmatizer()
 
     # List of clean tokens
     clean_tokens = [lemmatizer.lemmatize(w).lower().strip() for w in tokens]
     return clean_tokens
 
-
 def build_model():
-        pipeline = Pipeline([
+    """
+    Build a machine learning model pipeline.
+
+    Returns:
+        sklearn.model_selection._search.GridSearchCV: Grid search model pipeline.
+    """
+    pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
-        ])
-        
-        parameters = {
+    ])
+    
+    parameters = {
         'tfidf__smooth_idf': [True],
         'clf__estimator__n_estimators': [40],
-        }
-        
-        model = GridSearchCV(pipeline, parameters)
-        
-        return model
-        
-           
+    }
+    
+    model = GridSearchCV(pipeline, parameters)
+    
+    return model
+
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+    Evaluate the performance of the machine learning model.
+
+    Args:
+        model (sklearn.model_selection._search.GridSearchCV): Trained machine learning model.
+        X_test (pandas.Series): Test features.
+        Y_test (pandas.DataFrame): Test labels.
+        category_names (list): List of category names.
+    """
     y_pred = model.predict(X_test)
     
     for i, column in enumerate(category_names):
         print(f"Category: {column}\n")
         print(classification_report(Y_test[column], y_pred[:, i]))
         print("-" * 60)
-       
-
-
 
 def save_model(model, model_filepath):
+    """
+    Save the trained model to a pickle file.
+
+    Args:
+        model (sklearn.model_selection._search.GridSearchCV): Trained machine learning model.
+        model_filepath (str): Path to save the pickle file.
+    """
     with open(model_filepath, 'wb') as file:
         pickle.dump(model, file)
-
 
 
 def main():
