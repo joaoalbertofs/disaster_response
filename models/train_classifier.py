@@ -33,7 +33,7 @@ def load_data(database_filepath):
         tuple: A tuple containing features, labels, and category names.
     """
     engine = create_engine('sqlite:///' + database_filepath)
-    df = pd.read_sql_table('DisasterResponse', engine)
+    df = pd.read_sql_table(database_filepath, engine)
     
     X = df['message']
     y = df.iloc[:, 4:]
