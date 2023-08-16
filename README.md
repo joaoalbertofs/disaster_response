@@ -1,5 +1,31 @@
 # Disaster Response Pipeline Project
 
+## Project Summary:
+
+This project involves building a data pipeline and machine learning model to categorize messages for disaster response. The process is divided into multiple components, including Python scripts and a Flask web app for visualization and interaction.
+
+
+### Organization:
+
+- app
+| - template
+| |- master.html  # main page of web app
+| |- go.html  # classification result page of web app
+|- run.py  # Flask file that runs app
+
+- data
+|- disaster_categories.csv  # data to process 
+|- disaster_messages.csv  # data to process
+|- process_data.py
+|- InsertDatabaseName.db   # database to save clean data to
+
+- models
+|- train_classifier.py
+|- classifier.pkl  # saved model 
+
+- README.md
+
+
 ### Instructions:
 1. Run the following commands in the project's root directory to set up your database and model.
 
