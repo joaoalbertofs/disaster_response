@@ -44,6 +44,8 @@ def clean_data(df):
     df = df.drop('categories', axis=1)
     df = pd.concat([df, categories], axis=1)
     df = df.drop_duplicates()
+    numbers_columns = df.select_dtypes(include=['number']).columns
+    df[numbers_columns] = df[numbers_columns].applymap(lambda x: 1 if pd.to_numeric(x) > 1 else x)
     
     return df
 
